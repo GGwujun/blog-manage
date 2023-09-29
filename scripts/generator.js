@@ -142,7 +142,24 @@ date: "2019-06-23"
 ---  
       
 # ${chapter.article_title}\n${sitdown.HTMLToMD(chapter.content)}`;
+
       fs.writeFileSync(`${articleDir}.md`, mdContent);
+
+      if (sitdown.service.mdImages && sitdown.service.mdImages.length) {
+        for (let index = 0; index < sitdown.service.mdImages.length; index++) {
+          try {
+            const img = sitdown.service.mdImages[index];
+            const imgNoOrigin = img.split("?")[0].match(domainPattern);
+            if (imgNoOrigin) {
+              const dest = imgNoOrigin[1].replace(/\./g, "").replace(/\:/g, "").replace(/\//g, "") + imgNoOrigin[2].replace(/\//g, "")
+              await sleep(3000)
+              await downloadImage(img, `${bookDir}/${dest}`)
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      }
     } else {
       const dir = rmTrin(chapter.chapterTitle);
       const chapterDir = `${bookDir}/${getList(index)}.${dir}`;
